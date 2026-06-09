@@ -1,10 +1,11 @@
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AviaSoulsTest {
 
     @Test
-    void shouldCompareTicketsByPrice() {
+    void test1() {
         Ticket ticket1 = new Ticket("Moscow", "SPb", 1000, 1000, 1200);
         Ticket ticket2 = new Ticket("Moscow", "SPb", 2000, 1100, 1300);
 
@@ -14,7 +15,7 @@ class AviaSoulsTest {
     }
 
     @Test
-    void shouldSearchAndSortByPrice() {
+    void test2() {
         AviaSouls manager = new AviaSouls();
         Ticket cheap = new Ticket("Moscow", "SPb", 1000, 1000, 1200);
         Ticket expensive = new Ticket("Moscow", "SPb", 2000, 1100, 1300);
@@ -23,15 +24,17 @@ class AviaSoulsTest {
 
         Ticket[] found = manager.search("Moscow", "SPb");
 
-        assertEquals(2, found.length);
-        assertEquals(1000, found[0].getPrice());
-        assertEquals(2000, found[1].getPrice());
+        Ticket[] expected = new Ticket[]{
+                new Ticket("Moscow", "SPb", 1000, 1000, 1200),
+                new Ticket("Moscow", "SPb", 2000, 1100, 1300)
+        };
+        assertArrayEquals(expected, found);
     }
 
     @Test
-    void shouldCompareByFlightTime() {
-        Ticket fast = new Ticket("Moscow", "SPb", 1500, 1000, 1100); // 1 час
-        Ticket slow = new Ticket("Moscow", "SPb", 1500, 1000, 1300); // 3 часа
+    void test3() {
+        Ticket fast = new Ticket("Moscow", "SPb", 1500, 1000, 1100); // длительность 100
+        Ticket slow = new Ticket("Moscow", "SPb", 1500, 1000, 1300); // длительность 300
         TicketTimeComparator comparator = new TicketTimeComparator();
 
         assertEquals(-1, comparator.compare(fast, slow));
@@ -40,44 +43,54 @@ class AviaSoulsTest {
     }
 
     @Test
-    void shouldSearchAndSortByFlightTime() {
+    void test4() {
         AviaSouls manager = new AviaSouls();
-        Ticket fast = new Ticket("Moscow", "SPb", 1500, 1000, 1100); // 1 час
-        Ticket slow = new Ticket("Moscow", "SPb", 1500, 1000, 1300); // 3 часа
+        Ticket fast = new Ticket("Moscow", "SPb", 1500, 1000, 1100); // длительность 100
+        Ticket slow = new Ticket("Moscow", "SPb", 1500, 1000, 1300); // длительность 300
         manager.add(slow);
         manager.add(fast);
 
         TicketTimeComparator comparator = new TicketTimeComparator();
         Ticket[] found = manager.searchAndSortBy("Moscow", "SPb", comparator);
 
-        assertEquals(2, found.length);
-        assertEquals(100, found[0].getTimeTo() - found[0].getTimeFrom());
-        assertEquals(300, found[1].getTimeTo() - found[1].getTimeFrom());
+        Ticket[] expected = new Ticket[]{
+                new Ticket("Moscow", "SPb", 1500, 1000, 1100),
+                new Ticket("Moscow", "SPb", 1500, 1000, 1300)
+        };
+        assertArrayEquals(expected, found);
     }
 
     @Test
-    void shouldReturnEmptyArrayWhenNoTicketsFound() {
+    void test5() {
         AviaSouls manager = new AviaSouls();
         Ticket ticket = new Ticket("Moscow", "Kazan", 1000, 1000, 1200);
         manager.add(ticket);
 
         Ticket[] found = manager.search("Moscow", "SPb");
-        assertEquals(0, found.length);
+        Ticket[] expectedEmpty = new Ticket[0];
+        assertArrayEquals(expectedEmpty, found);
 
         found = manager.searchAndSortBy("Moscow", "SPb", new TicketTimeComparator());
-        assertEquals(0, found.length);
+        assertArrayEquals(expectedEmpty, found);
     }
 
     @Test
-    void shouldHandleMultipleDestinationsCorrectly() {
+    void test6() {
         AviaSouls manager = new AviaSouls();
-        manager.add(new Ticket("Moscow", "SPb", 1000, 1000, 1200));
-        manager.add(new Ticket("Moscow", "Kazan", 800, 900, 1100));
-        manager.add(new Ticket("Moscow", "SPb", 1200, 1100, 1400));
+        Ticket t1 = new Ticket("Moscow", "SPb", 1000, 1000, 1200);
+        Ticket t2 = new Ticket("Moscow", "Kazan", 800, 900, 1100);
+        Ticket t3 = new Ticket("Moscow", "SPb", 1200, 1100, 1400);
+        manager.add(t1);
+        manager.add(t2);
+        manager.add(t3);
 
         Ticket[] spbTickets = manager.search("Moscow", "SPb");
-        assertEquals(2, spbTickets.length);
-        assertEquals(1000, spbTickets[0].getPrice());
-        assertEquals(1200, spbTickets[1].getPrice());
+
+        Ticket[] expected = new Ticket[]{
+                new Ticket("Moscow", "SPb", 1000, 1000, 1200),
+                new Ticket("Moscow", "SPb", 1200, 1100, 1400)
+        };
+        assertArrayEquals(expected, spbTickets);
     }
+
 }
